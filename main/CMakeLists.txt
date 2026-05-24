@@ -1,0 +1,31 @@
+idf_component_register(
+    SRC_DIRS 
+        "." 
+        "APP" 
+        "APP/IMAGE" 
+        "APP/MAIN_UI" 
+        "APP/HANDLE" 
+        "APP/HID_MSC"
+        "APP/include"
+    INCLUDE_DIRS 
+        "." 
+        "APP" 
+        "APP/IMAGE" 
+        "APP/MAIN_UI" 
+        "APP/HANDLE" 
+        "APP/HID_MSC"
+        "APP/include"
+    EMBED_FILES "canon.pcm"
+    REQUIRES
+        BSP
+        PICTURE
+        MYFATFS
+        console
+        esp_driver_ppa
+		esp_wifi
+        esp_wifi_remote
+        eppp_link
+        lwip
+        esp-sr
+            )
+
