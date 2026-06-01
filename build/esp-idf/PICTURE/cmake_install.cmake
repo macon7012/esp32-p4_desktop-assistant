@@ -1,4 +1,4 @@
-# Install script for directory: E:/esp/esp3/comprehensive_routine_70inch_mipilcd/components/Middlewares/PICTURE
+# Install script for directory: E:/esp/esp5/esp32-p4_desktop-assistant/components/Middlewares/PICTURE
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

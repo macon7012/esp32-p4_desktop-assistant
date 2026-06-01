@@ -80,7 +80,7 @@ static void create_esp_hosted_transport_up_sem(void)
 esp_err_t esp_hosted_setup(void)
 {
 	create_esp_hosted_transport_up_sem();
-	g_h.funcs->_h_get_semaphore(transport_up_sem, portMAX_DELAY);
+	g_h.funcs->_h_get_semaphore(transport_up_sem, HOSTED_BLOCK_MAX);
 	g_h.funcs->_h_post_semaphore(transport_up_sem);
 	return ESP_OK;
 }

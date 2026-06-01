@@ -1,14 +1,4 @@
-/**
- ******************************************************************************
- * @file        main.c
- * @version     V1.0
- * @brief       LVGL综合实验
- ******************************************************************************
- * @attention   Waiken-Smart 慧勤智远
- *
- * 实验平台:     慧勤智远 ESP32-P4 开发板
- ******************************************************************************
- */
+
 
 #include "led.h"
 #include "lcd.h"
@@ -18,12 +8,70 @@
 #include "esp_rtc.h"
 #include "lvgl_demo.h"
 #include <stdio.h>
+#include <stdbool.h>
 #include "key.h"
-
+#include "ai_model.h"
 #include "driver/usb_serial_jtag.h"
 #include "app_wifi.h"
+#include "bh1750.h"
+#include "dht11.h"
+#include "app_detect.h"
+#include "smart_home_ctrl.h"
 
 const char *main_twai_tag = "main_twai";
+
+#define SMART_LIGHT_INTERVAL_MS  2000
+
+static void smart_light_ai_task(void *arg)
+{
+    bool bh1750_ok = false;
+
+    vTaskDelay(pdMS_TO_TICKS(3000));
+
+    for (int retry = 0; retry < 5; retry++) {
+        if (bh1750_init() == ESP_OK) {
+            bh1750_ok = true;
+            break;
+        }
+        ESP_LOGW("SMART_LIGHT", "BH1750 init retry %d...", retry + 1);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+
+    ESP_LOGI("SMART_LIGHT", "AI smart light running, bh1750:%s", bh1750_ok ? "OK" : "FAIL");
+
+    while (1) {
+        float lux = 0;
+        dht11_data_t dht_data = {0};
+
+        if (bh1750_ok) {
+            bh1750_read(&lux);
+        }
+        dht11_read(&dht_data);
+
+        csi_detection_result_t human = csi_detect_human();
+        bool is_someone = (human == CSI_HUMAN_DETECTED);
+
+        int light_on = ai_predict_light(is_someone ? 1.0f : 0.0f, lux);
+
+        smart_home_ctrl_update_sensor(dht_data.temperature, dht_data.humidity,
+                                      is_someone, light_on ? true : false);
+
+        if (smart_home_ctrl_get_auto_mode()) {
+            if (light_on) {
+                smart_home_ctrl_light_on();
+            } else {
+                smart_home_ctrl_light_off();
+            }
+        }
+
+        ESP_LOGI("SMART_LIGHT", "Human:%s Lux:%.1f T:%.1f H:%.1f -> %s auto:%s",
+                 is_someone ? "Y" : "N", lux, dht_data.temperature, dht_data.humidity,
+                 light_on ? "ON" : "OFF",
+                 smart_home_ctrl_get_auto_mode() ? "Y" : "N");
+
+        vTaskDelay(pdMS_TO_TICKS(SMART_LIGHT_INTERVAL_MS));
+    }
+}
 
 /**
  * @brief       程序入口
@@ -32,6 +80,8 @@ const char *main_twai_tag = "main_twai";
  */
 void app_main(void)
 {
+	ai_model_init(); // 初始化AI模型
+
 	uint8_t x = 0;
 	uint8_t key = 10;
 	uint8_t *tx_buf = malloc(8);
@@ -125,6 +175,12 @@ void app_main(void)
 			ledc_init(ledc_config);
 
 			wifi_auto_connect(); /* 上电自动连接WiFi */
+
+			dht11_init(GPIO_NUM_10);
+			csi_init(NULL);
+			smart_home_ctrl_init();
+			xTaskCreatePinnedToCore(smart_light_ai_task, "smart_light", 4096, NULL, 3, NULL, 1);
+
 			lvgl_demo();
 		}
 	}

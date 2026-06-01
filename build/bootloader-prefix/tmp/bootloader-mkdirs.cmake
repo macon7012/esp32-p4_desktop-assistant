@@ -10,18 +10,18 @@ if(NOT EXISTS "D:/rj/espidf/Espressif/frameworks/esp-idf-v5.5.1/components/bootl
   file(MAKE_DIRECTORY "D:/rj/espidf/Espressif/frameworks/esp-idf-v5.5.1/components/bootloader/subproject")
 endif()
 file(MAKE_DIRECTORY
-  "E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/bootloader"
-  "E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/bootloader-prefix"
-  "E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/bootloader-prefix/tmp"
-  "E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/bootloader-prefix/src/bootloader-stamp"
-  "E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/bootloader-prefix/src"
-  "E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/bootloader-prefix/src/bootloader-stamp"
+  "E:/esp/esp5/esp32-p4_desktop-assistant/build/bootloader"
+  "E:/esp/esp5/esp32-p4_desktop-assistant/build/bootloader-prefix"
+  "E:/esp/esp5/esp32-p4_desktop-assistant/build/bootloader-prefix/tmp"
+  "E:/esp/esp5/esp32-p4_desktop-assistant/build/bootloader-prefix/src/bootloader-stamp"
+  "E:/esp/esp5/esp32-p4_desktop-assistant/build/bootloader-prefix/src"
+  "E:/esp/esp5/esp32-p4_desktop-assistant/build/bootloader-prefix/src/bootloader-stamp"
 )
 
 set(configSubDirs )
 foreach(subDir IN LISTS configSubDirs)
-    file(MAKE_DIRECTORY "E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/bootloader-prefix/src/bootloader-stamp/${subDir}")
+    file(MAKE_DIRECTORY "E:/esp/esp5/esp32-p4_desktop-assistant/build/bootloader-prefix/src/bootloader-stamp/${subDir}")
 endforeach()
 if(cfgdir)
-  file(MAKE_DIRECTORY "E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/bootloader-prefix/src/bootloader-stamp${cfgdir}") # cfgdir has leading slash
+  file(MAKE_DIRECTORY "E:/esp/esp5/esp32-p4_desktop-assistant/build/bootloader-prefix/src/bootloader-stamp${cfgdir}") # cfgdir has leading slash
 endif()

@@ -2,6 +2,12 @@
 
 # Releases
 
+# $${\color{green} \text{2.12.8}}$$
+
+- SDIO: added `ESP_HOSTED_MEMPOOL_PREFER_SPIRAM` to allocate transport buffers from PSRAM (e.g. ESP32-P4), saving internal RAM; off by default
+- OS APIs: `_h_get_semaphore` and `_h_lock_mutex` now take timeout in milliseconds (was seconds)
+- added `_h_thread_yield` for threads to request a context switch
+
 # $${\color{green} \text{2.12.7}}$$
 
 - OpenThread: added OpenThread over dedicated UART support

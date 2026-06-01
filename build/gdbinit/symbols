@@ -13,8 +13,8 @@ end
 
 # Load bootloader symbols
 set confirm off
-    add-symbol-file E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/bootloader/bootloader.elf
+    add-symbol-file E:/esp/esp5/esp32-p4_desktop-assistant/build/bootloader/bootloader.elf
 set confirm on
 
 # Load application symbols
-file E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/comprehensive_routine_70inch_mipilcd.elf
+file E:/esp/esp5/esp32-p4_desktop-assistant/build/comprehensive_routine_70inch_mipilcd.elf

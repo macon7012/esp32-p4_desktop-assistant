@@ -1,2 +1,2 @@
-source E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/bootloader/gdbinit/symbols
-source E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/bootloader/gdbinit/connect
+source E:/esp/esp5/esp32-p4_desktop-assistant/build/bootloader/gdbinit/symbols
+source E:/esp/esp5/esp32-p4_desktop-assistant/build/bootloader/gdbinit/connect

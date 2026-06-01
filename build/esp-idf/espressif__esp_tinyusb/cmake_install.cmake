@@ -1,4 +1,4 @@
-# Install script for directory: E:/esp/esp3/comprehensive_routine_70inch_mipilcd/managed_components/espressif__esp_tinyusb
+# Install script for directory: E:/esp/esp5/esp32-p4_desktop-assistant/managed_components/espressif__esp_tinyusb
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

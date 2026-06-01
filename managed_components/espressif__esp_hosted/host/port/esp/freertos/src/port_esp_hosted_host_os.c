@@ -130,7 +130,19 @@ void *hosted_realloc(void *mem, size_t newsize)
 
 void *hosted_malloc_align(size_t size, size_t align)
 {
-	return heap_caps_aligned_alloc(align, size, MALLOC_CAP_INTERNAL | MALLOC_CAP_DMA | MALLOC_CAP_8BIT);
+	void *ptr = NULL;
+
+#if CONFIG_ESP_HOSTED_MEMPOOL_PREFER_SPIRAM
+	/* On targets where GDMA can reach PSRAM through cache (e.g. ESP32-P4),
+	 * prefer DMA-capable SPIRAM to preserve scarce internal RAM. */
+	ptr = heap_caps_aligned_alloc(align, size,
+			MALLOC_CAP_SPIRAM | MALLOC_CAP_DMA | MALLOC_CAP_8BIT);
+#endif
+	if (!ptr) {
+		ptr = heap_caps_aligned_alloc(align, size,
+				MALLOC_CAP_INTERNAL | MALLOC_CAP_DMA | MALLOC_CAP_8BIT);
+	}
+	return ptr;
 }
 
 void hosted_free_align(void* ptr)
@@ -218,6 +230,11 @@ int hosted_thread_cancel(void *thread_handle)
 
 	HOSTED_FREE(thread_handle);
 	return RET_OK;
+}
+
+void hosted_thread_yield(void)
+{
+	taskYIELD();
 }
 
 /* -------- Sleeps -------------- */
@@ -414,7 +431,7 @@ void * hosted_create_mutex(void)
 }
 
 
-int hosted_lock_mutex(void * mutex_handle, int timeout)
+int hosted_lock_mutex(void * mutex_handle, int timeout_ms)
 {
 	mutex_handle_t *mut_id = NULL;
 	int mut_locked = 0;
@@ -430,7 +447,7 @@ int hosted_lock_mutex(void * mutex_handle, int timeout)
 		return RET_INVALID;
 	}
 
-	mut_locked = xSemaphoreTake(*mut_id, HOSTED_BLOCK_MAX);
+	mut_locked = xSemaphoreTake(*mut_id, pdMS_TO_TICKS(timeout_ms));
 	if (mut_locked == pdTRUE)
 		return 0;
 
@@ -528,7 +545,7 @@ void * hosted_create_semaphore(int maxCount)
 }
 
 
-int hosted_get_semaphore(void * semaphore_handle, int timeout)
+int hosted_get_semaphore(void * semaphore_handle, int timeout_ms)
 {
 	semaphore_handle_t *sem_id = NULL;
 	int sem_acquired = 0;
@@ -544,14 +561,14 @@ int hosted_get_semaphore(void * semaphore_handle, int timeout)
 		return RET_INVALID;
 	}
 
-	if (!timeout) {
+	if (!timeout_ms) {
 		/* non blocking */
 		sem_acquired = xSemaphoreTake(*sem_id, 0);
-	} else if (timeout<0) {
+	} else if (timeout_ms < 0) {
 		/* Blocking */
 		sem_acquired = xSemaphoreTake(*sem_id, HOSTED_BLOCK_MAX);
 	} else {
-		sem_acquired = xSemaphoreTake(*sem_id, pdMS_TO_TICKS(SEC_TO_MILLISEC(timeout)));
+		sem_acquired = xSemaphoreTake(*sem_id, pdMS_TO_TICKS(timeout_ms));
 	}
 
 	if (sem_acquired == pdTRUE)
@@ -923,6 +940,7 @@ hosted_osi_funcs_t g_hosted_osi_funcs = {
 	._h_free_align               =  hosted_free_align              ,
 	._h_thread_create            =  hosted_thread_create           ,
 	._h_thread_cancel            =  hosted_thread_cancel           ,
+	._h_thread_yield             =  hosted_thread_yield            ,
 	._h_msleep                   =  hosted_msleep                  ,
 	._h_usleep                   =  hosted_usleep                  ,
 	._h_sleep                    =  hosted_sleep                   ,

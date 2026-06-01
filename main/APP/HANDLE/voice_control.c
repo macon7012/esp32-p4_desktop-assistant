@@ -33,6 +33,7 @@
 #include "esp_vadn_models.h"
 #include "esp_mn_iface.h"
 #include "esp_mn_models.h"
+#include "esp_mn_speech_commands.h"
 #include "model_path.h"
 #include "esp_process_sdkconfig.h"
 
@@ -172,7 +173,25 @@ static void sr_detect_task(void *pvParameters)
 
     esp_mn_iface_t *multinet = esp_mn_handle_from_name(mn_name);
     model_iface_data_t *model_data = multinet->create(mn_name, g_voice_cfg.mn_timeout_ms);
-    esp_mn_commands_update_from_sdkconfig(multinet, model_data);
+    esp_mn_commands_alloc(multinet, model_data);
+    esp_mn_commands_clear();
+    esp_mn_commands_add(VOICE_CMD_LIGHT_ON,        "da kai dian deng");
+    esp_mn_commands_add(VOICE_CMD_LIGHT_OFF,       "guan bi dian deng");
+    esp_mn_commands_add(VOICE_CMD_FAN_ON,          "da kai feng shan");
+    esp_mn_commands_add(VOICE_CMD_FAN_OFF,         "guan bi feng shan");
+    esp_mn_commands_add(VOICE_CMD_BRIGHTNESS_UP,   "tiao liang yi dian");
+    esp_mn_commands_add(VOICE_CMD_BRIGHTNESS_DOWN, "tiao an yi dian");
+    esp_mn_commands_add(VOICE_CMD_FAN_DOWN,        "feng xiao yi dian");
+    esp_mn_commands_add(VOICE_CMD_FAN_UP,          "feng da yi dian");
+    esp_mn_error_t *err = esp_mn_commands_update();
+    if (err && err->num > 0) {
+        ESP_LOGW(VOICE_TAG, "esp_mn_commands_update: %d phrases rejected", err->num);
+        for (int i = 0; i < err->num; i++) {
+            ESP_LOGW(VOICE_TAG, "  rejected phrase: %s", err->phrases[i]->string ? err->phrases[i]->string : "(null)");
+        }
+    } else {
+        ESP_LOGI(VOICE_TAG, "esp_mn_commands_update: all phrases accepted");
+    }
 
     int mu_chunksize = multinet->get_samp_chunksize(model_data);
     assert(mu_chunksize == afe_chunksize);
@@ -593,11 +612,7 @@ void voice_control_process_queue(void)
 
         if (g_cmd_callback != NULL)
         {
-            if (lvgl_port_lock(pdMS_TO_TICKS(100)))
-            {
-                g_cmd_callback(cmd, 0);
-                lvgl_port_unlock();
-            }
+            g_cmd_callback(cmd, 0);
         }
     }
 }

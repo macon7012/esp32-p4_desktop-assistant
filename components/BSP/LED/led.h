@@ -18,7 +18,7 @@
 
 /* 引脚定义 */
 #define LED0_GPIO_PIN    GPIO_NUM_14    /* LED0连接的GPIO端口 */
-#define LED1_GPIO_PIN    GPIO_NUM_13    /* LED1连接的GPIO端口 */
+#define LED1_GPIO_PIN    GPIO_NUM_21    /* LED1连接的GPIO端口 */
 
 /* LED0端口定义 */
 #define LED0(x)          do { x ?                                \
