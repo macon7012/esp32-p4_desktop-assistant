@@ -8,7 +8,7 @@
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "tensorflow/lite/micro/system_setup.h"
 #include "tensorflow/lite/schema/schema_generated.h"
-#include "smart_light_model.h" // 你的模型文件
+#include "smart_light_model.h" 
 
 const int kTensorArenaSize = 4 * 1024;
 uint8_t *tensor_arena = nullptr;

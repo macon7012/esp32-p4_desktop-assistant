@@ -1,5 +1,3 @@
-
-
 #include "led.h"
 #include "lcd.h"
 #include "myiic.h"
@@ -17,72 +15,119 @@
 #include "dht11.h"
 #include "app_detect.h"
 #include "smart_home_ctrl.h"
+#include "ota_update.h"
+#include "esp_task_wdt.h"
+#include "driver/ledc.h"
 
-const char *main_twai_tag = "main_twai";
+#define OTA_URL_DEFAULT "http://192.168.0.107:8080/comprehensive_routine_70inch_mipilcd.bin"
 
-#define SMART_LIGHT_INTERVAL_MS  2000
+static char g_ota_url[256] = "";
+static bool g_ota_trigger = false;
+
+static void ota_do_update(const char *url)
+{
+	ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 0);
+	ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+
+	esp_task_wdt_deinit();
+
+	ota_update_start(url);
+
+	esp_task_wdt_config_t twdt_cfg = {
+		.timeout_ms = 5000,
+		.idle_core_mask = (1 << 0) | (1 << 1),
+		.trigger_panic = true,
+	};
+	esp_task_wdt_init(&twdt_cfg);
+	ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 100);
+	ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+}
+
+static void ota_check_task(void *arg)
+{
+	vTaskDelay(pdMS_TO_TICKS(5000));
+
+	uint32_t key0_hold_ms = 0;
+	const uint32_t LONG_PRESS_MS = 3000;
+
+	while (1) {
+		if (KEY0 == 0) {
+			key0_hold_ms += 100;
+			if (key0_hold_ms >= LONG_PRESS_MS) {
+				key0_hold_ms = 0;
+				ota_do_update(g_ota_url[0] ? g_ota_url : OTA_URL_DEFAULT);
+			}
+		} else {
+			key0_hold_ms = 0;
+		}
+
+		if (g_ota_trigger) {
+			g_ota_trigger = false;
+			ota_do_update(g_ota_url[0] ? g_ota_url : OTA_URL_DEFAULT);
+		}
+		vTaskDelay(pdMS_TO_TICKS(100));
+	}
+}
+
+void ota_trigger(const char *url)
+{
+	if (url && url[0]) {
+		snprintf(g_ota_url, sizeof(g_ota_url), "%s", url);
+	}
+	g_ota_trigger = true;
+}
+
+static const char *TAG = "main";
+
+#define SMART_LIGHT_INTERVAL_MS 2000
 
 static void smart_light_ai_task(void *arg)
 {
-    bool bh1750_ok = false;
+	bool bh1750_ok = false;
 
-    vTaskDelay(pdMS_TO_TICKS(3000));
+	vTaskDelay(pdMS_TO_TICKS(3000));
 
-    for (int retry = 0; retry < 5; retry++) {
-        if (bh1750_init() == ESP_OK) {
-            bh1750_ok = true;
-            break;
-        }
-        ESP_LOGW("SMART_LIGHT", "BH1750 init retry %d...", retry + 1);
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
+	for (int retry = 0; retry < 5; retry++) {
+		if (bh1750_init() == ESP_OK) {
+			bh1750_ok = true;
+			break;
+		}
+		vTaskDelay(pdMS_TO_TICKS(1000));
+	}
 
-    ESP_LOGI("SMART_LIGHT", "AI smart light running, bh1750:%s", bh1750_ok ? "OK" : "FAIL");
+	while (1) {
+		float lux = 0;
+		dht11_data_t dht_data = {0};
 
-    while (1) {
-        float lux = 0;
-        dht11_data_t dht_data = {0};
+		if (bh1750_ok) {
+			bh1750_read(&lux);
+		}
+		dht11_read(&dht_data);
 
-        if (bh1750_ok) {
-            bh1750_read(&lux);
-        }
-        dht11_read(&dht_data);
+		csi_detection_result_t human = csi_detect_human();
+		bool is_someone = (human == CSI_HUMAN_DETECTED);
 
-        csi_detection_result_t human = csi_detect_human();
-        bool is_someone = (human == CSI_HUMAN_DETECTED);
+		int light_on = ai_predict_light(is_someone ? 1.0f : 0.0f, lux);
 
-        int light_on = ai_predict_light(is_someone ? 1.0f : 0.0f, lux);
+		smart_home_ctrl_update_sensor(dht_data.temperature, dht_data.humidity,
+									  is_someone, light_on ? true : false);
 
-        smart_home_ctrl_update_sensor(dht_data.temperature, dht_data.humidity,
-                                      is_someone, light_on ? true : false);
+		if (smart_home_ctrl_get_auto_mode()) {
+			if (light_on) {
+				smart_home_ctrl_light_on();
+			} else {
+				smart_home_ctrl_light_off();
+			}
+		}
 
-        if (smart_home_ctrl_get_auto_mode()) {
-            if (light_on) {
-                smart_home_ctrl_light_on();
-            } else {
-                smart_home_ctrl_light_off();
-            }
-        }
-
-        ESP_LOGI("SMART_LIGHT", "Human:%s Lux:%.1f T:%.1f H:%.1f -> %s auto:%s",
-                 is_someone ? "Y" : "N", lux, dht_data.temperature, dht_data.humidity,
-                 light_on ? "ON" : "OFF",
-                 smart_home_ctrl_get_auto_mode() ? "Y" : "N");
-
-        vTaskDelay(pdMS_TO_TICKS(SMART_LIGHT_INTERVAL_MS));
-    }
+		vTaskDelay(pdMS_TO_TICKS(SMART_LIGHT_INTERVAL_MS));
+	}
 }
 
-/**
- * @brief       程序入口
- * @param       无
- * @retval      无
- */
 void app_main(void)
 {
-	ai_model_init(); // 初始化AI模型
+	ai_model_init();
 
-	uint8_t x = 0;
 	uint8_t key = 10;
 	uint8_t *tx_buf = malloc(8);
 	uint8_t *rx_buf = malloc(8);
@@ -92,106 +137,78 @@ void app_main(void)
 		.tx_buffer_size = 1024,
 	};
 
-	led_init(); /* LED初始化 */
-	key_init(); /* 按键初始化 */
+	led_init();
+	key_init();
 
 	key = key_scan(0);
 
-	if (key != KEY0_PRES && key != BOOT_PRES) /* MIPI屏幕*/
-	{
-		/*********************************** USB JTAG Test ************************************/
+	if (key != KEY0_PRES && key != BOOT_PRES) {
 		ESP_ERROR_CHECK(usb_serial_jtag_driver_install(&usb_serial_jtag_config));
+		lv_general.usb_jtag_check_en = usb_serial_jtag_is_connected() ? 1 : 0;
 
-		if (usb_serial_jtag_is_connected())
-		{
-			lv_general.usb_jtag_check_en = 1;
-		}
-		else
-		{
-			lv_general.usb_jtag_check_en = 0;
-		}
-
-		/************************************** Twai Test ***************************************/
-		for (uint8_t i = 0; i < 8; i++)
-		{
+		for (uint8_t i = 0; i < 8; i++) {
 			tx_buf[i] = i;
 		}
 
-		twai_init(TWAI_MODE_NO_ACK);						/* TWAI初始化 */
-		ESP_ERROR_CHECK(twai_send_data(MSG_ID, tx_buf, 8)); /* ID = 0x12, 发送8个字节 */
+		twai_init(TWAI_MODE_NO_ACK);
+		ESP_ERROR_CHECK(twai_send_data(MSG_ID, tx_buf, 8));
 		vTaskDelay(pdMS_TO_TICKS(20));
-		twai_receive_data(MSG_ID, rx_buf); /* CAN ID = 0x12, 接收数据查询 */
+		twai_receive_data(MSG_ID, rx_buf);
 
-		if (memcmp(tx_buf, rx_buf, 8) == 0)
-		{
-			for (uint8_t i = 0; i < 3; i++)
-			{
-				ESP_LOGI(main_twai_tag, "twai ok");
-			}
-		}
-		else
-		{
-			for (uint8_t i = 0; i < 3; i++)
-			{
-				ESP_LOGI(main_twai_tag, "twai error");
-			}
+		if (memcmp(tx_buf, rx_buf, 8) == 0) {
+			ESP_LOGI(TAG, "twai ok");
+		} else {
+			ESP_LOGI(TAG, "twai error");
 		}
 
 		free(tx_buf);
 		free(rx_buf);
 
-		lcd_init(); /* MIPI LCD初始化 */
+		lcd_init();
 
-		if (myi2s_init() != ESP_OK) /* i2s初始化 */
-		{
+		if (myi2s_init() != ESP_OK) {
 			lcd_show_string(30, 110, 200, 16, 16, "I2S Error", RED);
-			while (1)
-			{
+			while (1) {
 				vTaskDelay(pdMS_TO_TICKS(1000));
 			}
 		}
 
-		while (myes8311_init()) /* ES8311初始化 */
-		{
+		while (myes8311_init()) {
 			lcd_show_string(30, 110, 200, 16, 16, "ES8311 Error", RED);
 			vTaskDelay(pdMS_TO_TICKS(200));
 			lcd_fill(30, 110, 239, 126, WHITE);
 			vTaskDelay(pdMS_TO_TICKS(200));
 		}
 
-		gpio_set_level(GPIO_NUM_11, 1); /* 打开喇叭 */
+		gpio_set_level(GPIO_NUM_11, 1);
 
-		if (mipidev.id == 0x79007) /* 7寸 1024*600 MIPI屏幕 */
-		{
-			rtc_set_time(2026, 1, 1, 0, 0, 0); /* 设置默认RTC时间（联网后自动同步） */
+		if (mipidev.id == 0x79007) {
+			rtc_set_time(2026, 1, 1, 0, 0, 0);
+
 			ledc_config_t *ledc_config = malloc(sizeof(ledc_config_t));
-			ledc_config->clk_cfg = LEDC_USE_PLL_DIV_CLK;	  /* 启动定时器时，根据给出的分辨率和占空率参数自动选择ledc源时钟 */
-			ledc_config->timer_num = LEDC_TIMER_0;			  /* 选择哪个定时器计数（LEDC_TIMER_0~LEDC_TIMER_3） */
-			ledc_config->freq_hz = 5000;					  /* 1KHz（系统自动计算分配系数，并提供freq_hz频率给到定时器） */
-			ledc_config->duty_resolution = LEDC_TIMER_10_BIT; /* 设置定时器最大计数值（请看技术手册表32.4.1） */
-			ledc_config->channel = LEDC_CHANNEL_0;			  /* 设置输出通道（LEDC_CHANNEL_0 ~ LEDC_CHANNEL_7） */
-			ledc_config->duty = 100;						  /* 一个周期内占高电平时间(占空比) */
-			ledc_config->gpio_num = GPIO_NUM_23;			  /* PWM信号输出那个管脚 */
+			ledc_config->clk_cfg = LEDC_USE_PLL_DIV_CLK;
+			ledc_config->timer_num = LEDC_TIMER_0;
+			ledc_config->freq_hz = 5000;
+			ledc_config->duty_resolution = LEDC_TIMER_10_BIT;
+			ledc_config->channel = LEDC_CHANNEL_0;
+			ledc_config->duty = 100;
+			ledc_config->gpio_num = GPIO_NUM_23;
 			ledc_init(ledc_config);
 
-			wifi_auto_connect(); /* 上电自动连接WiFi */
+			wifi_auto_connect();
 
 			dht11_init(GPIO_NUM_10);
 			csi_init(NULL);
 			smart_home_ctrl_init();
-			xTaskCreatePinnedToCore(smart_light_ai_task, "smart_light", 4096, NULL, 3, NULL, 1);
+			xTaskCreatePinnedToCore(smart_light_ai_task, "smart_light", 8192, NULL, 3, NULL, 1);
+			xTaskCreatePinnedToCore(ota_check_task, "ota_check", 16384, NULL, 2, NULL, 0);
 
 			lvgl_demo();
 		}
-	}
-	else if (key == BOOT_PRES) /*wifi APP*/
-	{
+	} else if (key == BOOT_PRES) {
 		wifi_app_flag = 1;
-
-		lcd_init(); /* MIPI LCD初始化 */
-
-		if (mipidev.id == 0x79007) 
-		{
+		lcd_init();
+		if (mipidev.id == 0x79007) {
 			lvgl_demo();
 		}
 	}

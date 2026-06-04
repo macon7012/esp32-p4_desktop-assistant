@@ -79,7 +79,6 @@ void frame_timer_stop(void)
  */
 bool IRAM_ATTR frame_rate_print(gptimer_handle_t timer, const gptimer_alarm_event_data_t *edata, void *user_data)
 {
-    ESP_DRAM_LOGI("TimerGroup", "frame:%d fps\r\n", g_frame);
     g_frame = 0;
     return pdTRUE;
 }

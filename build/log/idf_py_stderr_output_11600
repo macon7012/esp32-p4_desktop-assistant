@@ -1,0 +1,18 @@
+Command: cmake -G Ninja -DPYTHON_DEPS_CHECKED=1 -DPYTHON=D:\rj\espidf\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe -DESP_PLATFORM=1 -DCCACHE_ENABLE=1 E:\esp\esp5\esp32-p4_desktop-assistant
+CMake Error at D:/rj/espidf/Espressif/frameworks/esp-idf-v5.5.1/components/esp_common/project_include.cmake:10 (check_expected_tool_version):
+  check_expected_tool_version Function invoked with incorrect arguments for
+  function named: check_expected_tool_version
+Call Stack (most recent call first):
+  D:/rj/espidf/Espressif/frameworks/esp-idf-v5.5.1/tools/cmake/build.cmake:467 (include)
+  D:/rj/espidf/Espressif/frameworks/esp-idf-v5.5.1/tools/cmake/build.cmake:718 (__build_process_project_includes)
+  D:/rj/espidf/Espressif/frameworks/esp-idf-v5.5.1/tools/cmake/project.cmake:740 (idf_build_process)
+  CMakeLists.txt:9 (project)
+
+
+CMake Warning at D:/rj/espidf/Espressif/frameworks/esp-idf-v5.5.1/tools/cmake/component.cmake:298 (message):
+  No source files found for SRC_DIRS entry 'APP/include'.
+Call Stack (most recent call first):
+  D:/rj/espidf/Espressif/frameworks/esp-idf-v5.5.1/tools/cmake/component.cmake:455 (__component_add_sources)
+  main/CMakeLists.txt:1 (idf_component_register)
+
+

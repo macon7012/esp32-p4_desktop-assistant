@@ -27,5 +27,7 @@ idf_component_register(
         eppp_link
         lwip
         esp-sr
+        esp_https_ota
+        app_update
             )
 
