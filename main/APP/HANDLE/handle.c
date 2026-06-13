@@ -3,6 +3,8 @@
 #include "app_usb_otg.h"
 #include "app_file.h"
 #include "smart_home_ctrl.h"
+#include "ota_update.h"
+#include "key.h"
 
 static const char *HANDLE_TAG = "HANDLE";
 
@@ -426,7 +428,7 @@ void lv_scr_event_cb(lv_event_t *event)
                 }
                 else if (pull_menu_state == PULL_MENU_CLOSED && current_page == 0 && lv_general.current_parent == NULL)
                 {
-              
+
                     current_page = 1;
                     lv_app_switch_page(current_page);
                 }
@@ -900,7 +902,8 @@ static void lv_fan_speed_event(lv_event_t *e)
         lv_obj_clear_state(fan_mid_btn, LV_STATE_CHECKED);
         lv_obj_clear_state(fan_high_btn, LV_STATE_CHECKED);
         smart_home_ctrl_set_fan(FAN_SPEED_LOW);
-        if (gui_fan_switch && lv_obj_is_valid(gui_fan_switch) && !lv_obj_has_state(gui_fan_switch, LV_STATE_CHECKED)) {
+        if (gui_fan_switch && lv_obj_is_valid(gui_fan_switch) && !lv_obj_has_state(gui_fan_switch, LV_STATE_CHECKED))
+        {
             lv_obj_add_state(gui_fan_switch, LV_STATE_CHECKED);
         }
     }
@@ -909,7 +912,8 @@ static void lv_fan_speed_event(lv_event_t *e)
         lv_obj_clear_state(fan_low_btn, LV_STATE_CHECKED);
         lv_obj_clear_state(fan_high_btn, LV_STATE_CHECKED);
         smart_home_ctrl_set_fan(FAN_SPEED_MID);
-        if (gui_fan_switch && lv_obj_is_valid(gui_fan_switch) && !lv_obj_has_state(gui_fan_switch, LV_STATE_CHECKED)) {
+        if (gui_fan_switch && lv_obj_is_valid(gui_fan_switch) && !lv_obj_has_state(gui_fan_switch, LV_STATE_CHECKED))
+        {
             lv_obj_add_state(gui_fan_switch, LV_STATE_CHECKED);
         }
     }
@@ -918,7 +922,8 @@ static void lv_fan_speed_event(lv_event_t *e)
         lv_obj_clear_state(fan_low_btn, LV_STATE_CHECKED);
         lv_obj_clear_state(fan_mid_btn, LV_STATE_CHECKED);
         smart_home_ctrl_set_fan(FAN_SPEED_HIGH);
-        if (gui_fan_switch && lv_obj_is_valid(gui_fan_switch) && !lv_obj_has_state(gui_fan_switch, LV_STATE_CHECKED)) {
+        if (gui_fan_switch && lv_obj_is_valid(gui_fan_switch) && !lv_obj_has_state(gui_fan_switch, LV_STATE_CHECKED))
+        {
             lv_obj_add_state(gui_fan_switch, LV_STATE_CHECKED);
         }
     }
@@ -935,9 +940,11 @@ static void lv_fan_switch_event(lv_event_t *e)
     bool state = lv_obj_has_state(switch_obj, LV_STATE_CHECKED);
     if (state)
     {
-        if (smart_home_ctrl_get_fan() == FAN_SPEED_OFF) {
+        if (smart_home_ctrl_get_fan() == FAN_SPEED_OFF)
+        {
             smart_home_ctrl_set_fan(FAN_SPEED_LOW);
-            if (fan_low_btn && lv_obj_is_valid(fan_low_btn)) {
+            if (fan_low_btn && lv_obj_is_valid(fan_low_btn))
+            {
                 lv_obj_clear_state(fan_mid_btn, LV_STATE_CHECKED);
                 lv_obj_clear_state(fan_high_btn, LV_STATE_CHECKED);
                 lv_obj_add_state(fan_low_btn, LV_STATE_CHECKED);
@@ -996,10 +1003,14 @@ static void lv_brightness_slider_event(lv_event_t *e)
         lv_label_set_text(label, buf);
     }
     smart_home_ctrl_set_light((int)val);
-    if (gui_light_switch && lv_obj_is_valid(gui_light_switch)) {
-        if (val > 0 && !lv_obj_has_state(gui_light_switch, LV_STATE_CHECKED)) {
+    if (gui_light_switch && lv_obj_is_valid(gui_light_switch))
+    {
+        if (val > 0 && !lv_obj_has_state(gui_light_switch, LV_STATE_CHECKED))
+        {
             lv_obj_add_state(gui_light_switch, LV_STATE_CHECKED);
-        } else if (val == 0 && lv_obj_has_state(gui_light_switch, LV_STATE_CHECKED)) {
+        }
+        else if (val == 0 && lv_obj_has_state(gui_light_switch, LV_STATE_CHECKED))
+        {
             lv_obj_clear_state(gui_light_switch, LV_STATE_CHECKED);
         }
     }
@@ -1055,7 +1066,8 @@ static void lv_voice_command_callback(voice_cmd_t cmd, int param)
         smart_home_ctrl_fan_on();
         if (gui_fan_switch && lv_obj_is_valid(gui_fan_switch))
             lv_obj_add_state(gui_fan_switch, LV_STATE_CHECKED);
-        if (fan_low_btn && lv_obj_is_valid(fan_low_btn)) {
+        if (fan_low_btn && lv_obj_is_valid(fan_low_btn))
+        {
             lv_obj_clear_state(fan_mid_btn, LV_STATE_CHECKED);
             lv_obj_clear_state(fan_high_btn, LV_STATE_CHECKED);
             lv_obj_add_state(fan_low_btn, LV_STATE_CHECKED);
@@ -1109,15 +1121,20 @@ static void lv_voice_command_callback(voice_cmd_t cmd, int param)
             if (gui_fan_switch && lv_obj_is_valid(gui_fan_switch))
                 (s > 0) ? lv_obj_add_state(gui_fan_switch, LV_STATE_CHECKED)
                         : lv_obj_clear_state(gui_fan_switch, LV_STATE_CHECKED);
-            if (s == FAN_SPEED_LOW) {
+            if (s == FAN_SPEED_LOW)
+            {
                 lv_obj_add_state(fan_low_btn, LV_STATE_CHECKED);
                 lv_obj_clear_state(fan_mid_btn, LV_STATE_CHECKED);
                 lv_obj_clear_state(fan_high_btn, LV_STATE_CHECKED);
-            } else if (s == FAN_SPEED_MID) {
+            }
+            else if (s == FAN_SPEED_MID)
+            {
                 lv_obj_add_state(fan_mid_btn, LV_STATE_CHECKED);
                 lv_obj_clear_state(fan_low_btn, LV_STATE_CHECKED);
                 lv_obj_clear_state(fan_high_btn, LV_STATE_CHECKED);
-            } else if (s == FAN_SPEED_HIGH) {
+            }
+            else if (s == FAN_SPEED_HIGH)
+            {
                 lv_obj_add_state(fan_high_btn, LV_STATE_CHECKED);
                 lv_obj_clear_state(fan_low_btn, LV_STATE_CHECKED);
                 lv_obj_clear_state(fan_mid_btn, LV_STATE_CHECKED);
@@ -1133,15 +1150,20 @@ static void lv_voice_command_callback(voice_cmd_t cmd, int param)
             if (gui_fan_switch && lv_obj_is_valid(gui_fan_switch))
                 (s > 0) ? lv_obj_add_state(gui_fan_switch, LV_STATE_CHECKED)
                         : lv_obj_clear_state(gui_fan_switch, LV_STATE_CHECKED);
-            if (s == FAN_SPEED_LOW) {
+            if (s == FAN_SPEED_LOW)
+            {
                 lv_obj_add_state(fan_low_btn, LV_STATE_CHECKED);
                 lv_obj_clear_state(fan_mid_btn, LV_STATE_CHECKED);
                 lv_obj_clear_state(fan_high_btn, LV_STATE_CHECKED);
-            } else if (s == FAN_SPEED_MID) {
+            }
+            else if (s == FAN_SPEED_MID)
+            {
                 lv_obj_add_state(fan_mid_btn, LV_STATE_CHECKED);
                 lv_obj_clear_state(fan_low_btn, LV_STATE_CHECKED);
                 lv_obj_clear_state(fan_high_btn, LV_STATE_CHECKED);
-            } else if (s == FAN_SPEED_HIGH) {
+            }
+            else if (s == FAN_SPEED_HIGH)
+            {
                 lv_obj_add_state(fan_high_btn, LV_STATE_CHECKED);
                 lv_obj_clear_state(fan_low_btn, LV_STATE_CHECKED);
                 lv_obj_clear_state(fan_mid_btn, LV_STATE_CHECKED);
@@ -1222,34 +1244,45 @@ void lv_background_data_processing_timer(lv_timer_t *timer)
 
     voice_control_process_queue();
 
-    if (gui_temp_label && lv_obj_is_valid(gui_temp_label)) {
+    if (gui_temp_label && lv_obj_is_valid(gui_temp_label))
+    {
         char buf[16];
         snprintf(buf, sizeof(buf), "%d C", (int)g_sh_state.temperature);
         lv_label_set_text(gui_temp_label, buf);
     }
-    if (gui_humi_label && lv_obj_is_valid(gui_humi_label)) {
+    if (gui_humi_label && lv_obj_is_valid(gui_humi_label))
+    {
         char buf[16];
         snprintf(buf, sizeof(buf), "%d %%", (int)g_sh_state.humidity);
         lv_label_set_text(gui_humi_label, buf);
     }
 
-    if (g_sh_state.light_on) {
-        if (gui_light_switch && lv_obj_is_valid(gui_light_switch) && !lv_obj_has_state(gui_light_switch, LV_STATE_CHECKED)) {
+    if (g_sh_state.light_on)
+    {
+        if (gui_light_switch && lv_obj_is_valid(gui_light_switch) && !lv_obj_has_state(gui_light_switch, LV_STATE_CHECKED))
+        {
             lv_obj_add_state(gui_light_switch, LV_STATE_CHECKED);
         }
-    } else {
-        if (gui_light_switch && lv_obj_is_valid(gui_light_switch) && lv_obj_has_state(gui_light_switch, LV_STATE_CHECKED)) {
+    }
+    else
+    {
+        if (gui_light_switch && lv_obj_is_valid(gui_light_switch) && lv_obj_has_state(gui_light_switch, LV_STATE_CHECKED))
+        {
             lv_obj_clear_state(gui_light_switch, LV_STATE_CHECKED);
         }
     }
-    if (gui_brightness_slider && lv_obj_is_valid(gui_brightness_slider)) {
-        if (lv_slider_get_value(gui_brightness_slider) != g_sh_state.light_brightness) {
+    if (gui_brightness_slider && lv_obj_is_valid(gui_brightness_slider))
+    {
+        if (lv_slider_get_value(gui_brightness_slider) != g_sh_state.light_brightness)
+        {
             lv_slider_set_value(gui_brightness_slider, g_sh_state.light_brightness, LV_ANIM_OFF);
         }
     }
-    if (gui_brightness_label && lv_obj_is_valid(gui_brightness_label)) {
+    if (gui_brightness_label && lv_obj_is_valid(gui_brightness_label))
+    {
         static int last_label_brightness = -1;
-        if (last_label_brightness != g_sh_state.light_brightness) {
+        if (last_label_brightness != g_sh_state.light_brightness)
+        {
             lv_label_set_text_fmt(gui_brightness_label, "Brightness: %d%%", g_sh_state.light_brightness);
             last_label_brightness = g_sh_state.light_brightness;
         }
@@ -1285,9 +1318,34 @@ void lv_background_data_processing_timer(lv_timer_t *timer)
     {
         LED1_TOGGLE();
     }
-    else if (key == KEY0_PRES)
+
+    // KEY0 长按3秒触发OTA，短按切换LED0
     {
-        LED0_TOGGLE();
+        static uint32_t key0_press_time = 0;
+        static bool key0_ota_triggered = false;
+
+        if (KEY0 == 0) // KEY0 当前按下
+        {
+            if (key0_press_time == 0)
+            {
+                key0_press_time = lv_tick_get();
+            }
+            else if (!key0_ota_triggered && (lv_tick_get() - key0_press_time >= 3000))
+            {
+                key0_ota_triggered = true;
+                ESP_LOGI(HANDLE_TAG, "KEY0 long press 3s, triggering OTA...");
+                ota_trigger("http://192.168.0.107:8080/comprehensive_routine_70inch_mipilcd.bin");
+            }
+        }
+        else // KEY0 松开
+        {
+            if (key0_press_time > 0 && !key0_ota_triggered)
+            {
+                LED0_TOGGLE(); 
+            }
+            key0_press_time = 0;
+            key0_ota_triggered = false;
+        }
     }
 
     if (lv_general.usb_jtag_check_en == 1)

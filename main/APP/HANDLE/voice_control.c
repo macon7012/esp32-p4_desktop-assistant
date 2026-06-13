@@ -37,8 +37,6 @@
 #include "model_path.h"
 #include "esp_process_sdkconfig.h"
 
-
-
 static const char *VOICE_TAG = "voice_ctrl";
 
 static voice_ctrl_cfg_t g_voice_cfg;
@@ -108,7 +106,7 @@ static void sr_feed_task(void *pvParameters)
     esp_afe_sr_data_t *afe_data = (esp_afe_sr_data_t *)pvParameters;
     int audio_chunksize = g_afe_handle->get_feed_chunksize(afe_data);
     int afe_ch = g_afe_handle->get_feed_channel_num(afe_data);
-    int i2s_ch = 2;  /* I2S 始终立体声 */
+    int i2s_ch = 2; /* I2S 始终立体声 */
 
     int16_t *pcm_buf = malloc(audio_chunksize * i2s_ch * sizeof(int16_t));
     if (pcm_buf == NULL)
@@ -132,9 +130,11 @@ static void sr_feed_task(void *pvParameters)
             uint32_t samples = read_size / sizeof(int16_t);
             g_audio_level = pcm_rms_level(pcm_buf, samples);
 
-            if (afe_ch == 1) {
+            if (afe_ch == 1)
+            {
                 int half = samples / i2s_ch;
-                for (int i = 0; i < half; i++) {
+                for (int i = 0; i < half; i++)
+                {
                     pcm_buf[i] = pcm_buf[i * i2s_ch];
                 }
             }
@@ -175,21 +175,25 @@ static void sr_detect_task(void *pvParameters)
     model_iface_data_t *model_data = multinet->create(mn_name, g_voice_cfg.mn_timeout_ms);
     esp_mn_commands_alloc(multinet, model_data);
     esp_mn_commands_clear();
-    esp_mn_commands_add(VOICE_CMD_LIGHT_ON,        "da kai dian deng");
-    esp_mn_commands_add(VOICE_CMD_LIGHT_OFF,       "guan bi dian deng");
-    esp_mn_commands_add(VOICE_CMD_FAN_ON,          "da kai feng shan");
-    esp_mn_commands_add(VOICE_CMD_FAN_OFF,         "guan bi feng shan");
-    esp_mn_commands_add(VOICE_CMD_BRIGHTNESS_UP,   "tiao liang yi dian");
+    esp_mn_commands_add(VOICE_CMD_LIGHT_ON, "da kai dian deng");
+    esp_mn_commands_add(VOICE_CMD_LIGHT_OFF, "guan bi dian deng");
+    esp_mn_commands_add(VOICE_CMD_FAN_ON, "da kai feng shan");
+    esp_mn_commands_add(VOICE_CMD_FAN_OFF, "guan bi feng shan");
+    esp_mn_commands_add(VOICE_CMD_BRIGHTNESS_UP, "tiao liang yi dian");
     esp_mn_commands_add(VOICE_CMD_BRIGHTNESS_DOWN, "tiao an yi dian");
-    esp_mn_commands_add(VOICE_CMD_FAN_DOWN,        "feng xiao yi dian");
-    esp_mn_commands_add(VOICE_CMD_FAN_UP,          "feng da yi dian");
+    esp_mn_commands_add(VOICE_CMD_FAN_DOWN, "feng xiao yi dian");
+    esp_mn_commands_add(VOICE_CMD_FAN_UP, "feng da yi dian");
     esp_mn_error_t *err = esp_mn_commands_update();
-    if (err && err->num > 0) {
+    if (err && err->num > 0)
+    {
         ESP_LOGW(VOICE_TAG, "esp_mn_commands_update: %d phrases rejected", err->num);
-        for (int i = 0; i < err->num; i++) {
+        for (int i = 0; i < err->num; i++)
+        {
             ESP_LOGW(VOICE_TAG, "  rejected phrase: %s", err->phrases[i]->string ? err->phrases[i]->string : "(null)");
         }
-    } else {
+    }
+    else
+    {
         ESP_LOGI(VOICE_TAG, "esp_mn_commands_update: all phrases accepted");
     }
 
@@ -348,10 +352,13 @@ esp_err_t voice_control_init(voice_ctrl_cfg_t *cfg)
 
     /* ESP32-P4 上 WebRTC VAD 不兼容, 用 VADNet 神经网络 VAD 替代 */
     char *vad_name = esp_srmodel_filter(g_models, ESP_VADN_PREFIX, NULL);
-    if (vad_name) {
+    if (vad_name)
+    {
         afe_cfg->vad_model_name = vad_name;
         ESP_LOGI(VOICE_TAG, "VADNet model selected: %s", vad_name);
-    } else {
+    }
+    else
+    {
         ESP_LOGW(VOICE_TAG, "VADNet model NOT found, falling back to WebRTC VAD");
     }
     /* memory_alloc_mode 使用默认值, 与 COMMAND 参考代码保持一致 */

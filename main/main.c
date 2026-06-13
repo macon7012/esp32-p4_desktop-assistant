@@ -17,60 +17,69 @@
 #include "dht11.h"
 #include "app_detect.h"
 #include "smart_home_ctrl.h"
+#include "ota_update.h"
 
 const char *main_twai_tag = "main_twai";
 
-#define SMART_LIGHT_INTERVAL_MS  2000
+#define SMART_LIGHT_INTERVAL_MS 2000
 
 static void smart_light_ai_task(void *arg)
 {
-    bool bh1750_ok = false;
+	bool bh1750_ok = false;
 
-    vTaskDelay(pdMS_TO_TICKS(3000));
+	vTaskDelay(pdMS_TO_TICKS(3000));
 
-    for (int retry = 0; retry < 5; retry++) {
-        if (bh1750_init() == ESP_OK) {
-            bh1750_ok = true;
-            break;
-        }
-        ESP_LOGW("SMART_LIGHT", "BH1750 init retry %d...", retry + 1);
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
+	for (int retry = 0; retry < 5; retry++)
+	{
+		if (bh1750_init() == ESP_OK)
+		{
+			bh1750_ok = true;
+			break;
+		}
+		ESP_LOGW("SMART_LIGHT", "BH1750 init retry %d...", retry + 1);
+		vTaskDelay(pdMS_TO_TICKS(1000));
+	}
 
-    ESP_LOGI("SMART_LIGHT", "AI smart light running, bh1750:%s", bh1750_ok ? "OK" : "FAIL");
+	ESP_LOGI("SMART_LIGHT", "AI smart light running, bh1750:%s", bh1750_ok ? "OK" : "FAIL");
 
-    while (1) {
-        float lux = 0;
-        dht11_data_t dht_data = {0};
+	while (1)
+	{
+		float lux = 0;
+		dht11_data_t dht_data = {0};
 
-        if (bh1750_ok) {
-            bh1750_read(&lux);
-        }
-        dht11_read(&dht_data);
+		if (bh1750_ok)
+		{
+			bh1750_read(&lux);
+		}
+		dht11_read(&dht_data);
 
-        csi_detection_result_t human = csi_detect_human();
-        bool is_someone = (human == CSI_HUMAN_DETECTED);
+		csi_detection_result_t human = csi_detect_human();
+		bool is_someone = (human == CSI_HUMAN_DETECTED);
 
-        int light_on = ai_predict_light(is_someone ? 1.0f : 0.0f, lux);
+		int light_on = ai_predict_light(is_someone ? 1.0f : 0.0f, lux);
 
-        smart_home_ctrl_update_sensor(dht_data.temperature, dht_data.humidity,
-                                      is_someone, light_on ? true : false);
+		smart_home_ctrl_update_sensor(dht_data.temperature, dht_data.humidity,
+									  is_someone, light_on ? true : false);
 
-        if (smart_home_ctrl_get_auto_mode()) {
-            if (light_on) {
-                smart_home_ctrl_light_on();
-            } else {
-                smart_home_ctrl_light_off();
-            }
-        }
+		if (smart_home_ctrl_get_auto_mode())
+		{
+			if (light_on)
+			{
+				smart_home_ctrl_light_on();
+			}
+			else
+			{
+				smart_home_ctrl_light_off();
+			}
+		}
 
-        ESP_LOGI("SMART_LIGHT", "Human:%s Lux:%.1f T:%.1f H:%.1f -> %s auto:%s",
-                 is_someone ? "Y" : "N", lux, dht_data.temperature, dht_data.humidity,
-                 light_on ? "ON" : "OFF",
-                 smart_home_ctrl_get_auto_mode() ? "Y" : "N");
+		ESP_LOGI("SMART_LIGHT", "Human:%s Lux:%.1f T:%.1f H:%.1f -> %s auto:%s",
+				 is_someone ? "Y" : "N", lux, dht_data.temperature, dht_data.humidity,
+				 light_on ? "ON" : "OFF",
+				 smart_home_ctrl_get_auto_mode() ? "Y" : "N");
 
-        vTaskDelay(pdMS_TO_TICKS(SMART_LIGHT_INTERVAL_MS));
-    }
+		vTaskDelay(pdMS_TO_TICKS(SMART_LIGHT_INTERVAL_MS));
+	}
 }
 
 /**
@@ -190,7 +199,7 @@ void app_main(void)
 
 		lcd_init(); /* MIPI LCD初始化 */
 
-		if (mipidev.id == 0x79007) 
+		if (mipidev.id == 0x79007)
 		{
 			lvgl_demo();
 		}

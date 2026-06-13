@@ -20,6 +20,9 @@ idf_component_register(
         BSP
         PICTURE
         MYFATFS
+        esp_http_client
+        esp_https_ota
+        app_update
         console
         esp_driver_ppa
 		esp_wifi
