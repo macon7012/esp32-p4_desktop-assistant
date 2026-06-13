@@ -2,34 +2,34 @@
 	"sources" : 
 	[
 		{
-			"file" : "E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/CMakeFiles/bootloader"
+			"file" : "E:/esp/esp5/esp32-p4_desktop-assistant/build/CMakeFiles/bootloader"
 		},
 		{
-			"file" : "E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/CMakeFiles/bootloader.rule"
+			"file" : "E:/esp/esp5/esp32-p4_desktop-assistant/build/CMakeFiles/bootloader.rule"
 		},
 		{
-			"file" : "E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/CMakeFiles/bootloader-complete.rule"
+			"file" : "E:/esp/esp5/esp32-p4_desktop-assistant/build/CMakeFiles/bootloader-complete.rule"
 		},
 		{
-			"file" : "E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule"
+			"file" : "E:/esp/esp5/esp32-p4_desktop-assistant/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule"
 		},
 		{
-			"file" : "E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule"
+			"file" : "E:/esp/esp5/esp32-p4_desktop-assistant/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule"
 		},
 		{
-			"file" : "E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule"
+			"file" : "E:/esp/esp5/esp32-p4_desktop-assistant/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule"
 		},
 		{
-			"file" : "E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule"
+			"file" : "E:/esp/esp5/esp32-p4_desktop-assistant/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule"
 		},
 		{
-			"file" : "E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule"
+			"file" : "E:/esp/esp5/esp32-p4_desktop-assistant/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule"
 		},
 		{
-			"file" : "E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule"
+			"file" : "E:/esp/esp5/esp32-p4_desktop-assistant/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule"
 		},
 		{
-			"file" : "E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule"
+			"file" : "E:/esp/esp5/esp32-p4_desktop-assistant/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule"
 		}
 	],
 	"target" : 

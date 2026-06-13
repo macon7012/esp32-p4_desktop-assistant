@@ -2,6 +2,7 @@
 #include "app_wifi.h"
 #include "app_usb_otg.h"
 #include "app_file.h"
+#include "smart_home_ctrl.h"
 
 static const char *HANDLE_TAG = "HANDLE";
 
@@ -34,6 +35,14 @@ static lv_obj_t *fan_high_btn = NULL;
 static lv_obj_t *fan_status_cont = NULL;
 static lv_obj_t *fan_status_label = NULL;
 static lv_obj_t *chat_card = NULL;
+
+static lv_obj_t *gui_temp_label = NULL;
+static lv_obj_t *gui_humi_label = NULL;
+static lv_obj_t *gui_brightness_slider = NULL;
+static lv_obj_t *gui_brightness_label = NULL;
+static lv_obj_t *gui_fan_switch = NULL;
+static lv_obj_t *gui_light_switch = NULL;
+static lv_obj_t *gui_auto_switch = NULL;
 
 /**
  * @brief  前导置零
@@ -514,7 +523,7 @@ void lv_ui_del(SemaphoreHandle_t BinarySemaphore)
 }
 
 /**
- * @brief  创建第二页（深蓝色空白页）
+ * @brief  创建第二页
  * @param  无
  * @retval 无
  */
@@ -540,8 +549,6 @@ void lv_app_create_pages(void)
 
     // 为第二页添加手势事件回调，确保能响应右滑手势
     lv_obj_add_event_cb(page2_container, lv_scr_event_cb, LV_EVENT_GESTURE, NULL);
-
-    // ==================== 智能家居控制界面（Flex布局） ====================
 
     // 设置 page2_container 为 flex 列布局，子元素从上到下排列
     lv_obj_set_flex_flow(page2_container, LV_FLEX_FLOW_COLUMN);
@@ -606,11 +613,11 @@ void lv_app_create_pages(void)
     lv_obj_set_style_text_color(temp_icon, lv_color_hex(0xF87171), LV_STATE_DEFAULT);
     lv_obj_align(temp_icon, LV_ALIGN_TOP_LEFT, 0, 0);
 
-    lv_obj_t *temp_label = lv_label_create(temp_group);
-    lv_label_set_text(temp_label, "26.5 C");
-    lv_obj_set_style_text_font(temp_label, &lv_font_montserrat_36, LV_STATE_DEFAULT);
-    lv_obj_set_style_text_color(temp_label, lv_color_hex(0xF8FAFC), LV_STATE_DEFAULT);
-    lv_obj_align_to(temp_label, temp_icon, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 5);
+    gui_temp_label = lv_label_create(temp_group);
+    lv_label_set_text(gui_temp_label, "26.5 C");
+    lv_obj_set_style_text_font(gui_temp_label, &lv_font_montserrat_36, LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(gui_temp_label, lv_color_hex(0xF8FAFC), LV_STATE_DEFAULT);
+    lv_obj_align_to(gui_temp_label, temp_icon, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 5);
 
     // 湿度图标+数值
     lv_obj_t *humi_group = lv_obj_create(temp_humi_cont);
@@ -624,11 +631,11 @@ void lv_app_create_pages(void)
     lv_obj_set_style_text_color(humi_icon, lv_color_hex(0x60A5FA), LV_STATE_DEFAULT);
     lv_obj_align(humi_icon, LV_ALIGN_TOP_LEFT, 0, 0);
 
-    lv_obj_t *humi_label = lv_label_create(humi_group);
-    lv_label_set_text(humi_label, "65 %");
-    lv_obj_set_style_text_font(humi_label, &lv_font_montserrat_36, LV_STATE_DEFAULT);
-    lv_obj_set_style_text_color(humi_label, lv_color_hex(0xF8FAFC), LV_STATE_DEFAULT);
-    lv_obj_align_to(humi_label, humi_icon, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 5);
+    gui_humi_label = lv_label_create(humi_group);
+    lv_label_set_text(gui_humi_label, "65 %");
+    lv_obj_set_style_text_font(gui_humi_label, &lv_font_montserrat_36, LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(gui_humi_label, lv_color_hex(0xF8FAFC), LV_STATE_DEFAULT);
+    lv_obj_align_to(gui_humi_label, humi_icon, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 5);
 
     // -------------------- 2. 状态 + Auto 行容器 --------------------
     lv_obj_t *status_row = lv_obj_create(left_col);
@@ -671,11 +678,11 @@ void lv_app_create_pages(void)
     lv_obj_set_style_text_color(auto_title, lv_color_hex(0xF8FAFC), LV_STATE_DEFAULT);
     lv_obj_align(auto_title, LV_ALIGN_TOP_LEFT, 15, 15);
 
-    lv_obj_t *auto_switch = lv_switch_create(auto_card);
-    lv_obj_set_size(auto_switch, 60, 30);
-    lv_obj_align(auto_switch, LV_ALIGN_CENTER, 30, 5);
-    lv_obj_add_event_cb(auto_switch, lv_auto_light_switch_event, LV_EVENT_VALUE_CHANGED, NULL);
-    lv_obj_move_foreground(auto_switch);
+    gui_auto_switch = lv_switch_create(auto_card);
+    lv_obj_set_size(gui_auto_switch, 60, 30);
+    lv_obj_align(gui_auto_switch, LV_ALIGN_CENTER, 30, 5);
+    lv_obj_add_event_cb(gui_auto_switch, lv_auto_light_switch_event, LV_EVENT_VALUE_CHANGED, NULL);
+    lv_obj_move_foreground(gui_auto_switch);
 
     // ---- 右列容器 ----
     lv_obj_t *right_col = lv_obj_create(content_row);
@@ -701,11 +708,11 @@ void lv_app_create_pages(void)
     lv_obj_set_style_text_color(fan_title, lv_color_hex(0xF8FAFC), LV_STATE_DEFAULT);
     lv_obj_align(fan_title, LV_ALIGN_TOP_LEFT, 20, 15);
 
-    lv_obj_t *fan_switch = lv_switch_create(fan_card);
-    lv_obj_set_size(fan_switch, 80, 40);
-    lv_obj_align(fan_switch, LV_ALIGN_TOP_RIGHT, -20, 15);
-    lv_obj_add_event_cb(fan_switch, lv_fan_switch_event, LV_EVENT_VALUE_CHANGED, NULL);
-    lv_obj_move_foreground(fan_switch);
+    gui_fan_switch = lv_switch_create(fan_card);
+    lv_obj_set_size(gui_fan_switch, 80, 40);
+    lv_obj_align(gui_fan_switch, LV_ALIGN_TOP_RIGHT, -20, 15);
+    lv_obj_add_event_cb(gui_fan_switch, lv_fan_switch_event, LV_EVENT_VALUE_CHANGED, NULL);
+    lv_obj_move_foreground(gui_fan_switch);
 
     lv_obj_t *fan_speed_cont = lv_obj_create(fan_card);
     lv_obj_set_size(fan_speed_cont, LV_PCT(90), 90);
@@ -775,27 +782,27 @@ void lv_app_create_pages(void)
     lv_obj_set_style_text_color(light_title, lv_color_hex(0xF8FAFC), LV_STATE_DEFAULT);
     lv_obj_align(light_title, LV_ALIGN_TOP_LEFT, 20, 15);
 
-    lv_obj_t *light_switch = lv_switch_create(light_card);
-    lv_obj_set_size(light_switch, 80, 40);
-    lv_obj_align(light_switch, LV_ALIGN_TOP_RIGHT, -20, 15);
-    lv_obj_add_event_cb(light_switch, lv_light_switch_event, LV_EVENT_VALUE_CHANGED, NULL);
-    lv_obj_move_foreground(light_switch);
+    gui_light_switch = lv_switch_create(light_card);
+    lv_obj_set_size(gui_light_switch, 80, 40);
+    lv_obj_align(gui_light_switch, LV_ALIGN_TOP_RIGHT, -20, 15);
+    lv_obj_add_event_cb(gui_light_switch, lv_light_switch_event, LV_EVENT_VALUE_CHANGED, NULL);
+    lv_obj_move_foreground(gui_light_switch);
 
-    lv_obj_t *brightness_slider = lv_slider_create(light_card);
-    lv_obj_set_size(brightness_slider, LV_PCT(80), 20);
-    lv_obj_align(brightness_slider, LV_ALIGN_CENTER, 0, 20);
-    lv_slider_set_range(brightness_slider, 0, 100);
-    lv_slider_set_value(brightness_slider, 75, LV_ANIM_OFF);
-    lv_obj_set_style_bg_color(brightness_slider, lv_color_hex(0x334155), LV_STATE_DEFAULT);
-    lv_obj_set_style_radius(brightness_slider, 10, LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(brightness_slider, LV_OPA_0, LV_PART_KNOB);
+    gui_brightness_slider = lv_slider_create(light_card);
+    lv_obj_set_size(gui_brightness_slider, LV_PCT(80), 20);
+    lv_obj_align(gui_brightness_slider, LV_ALIGN_CENTER, 0, 20);
+    lv_slider_set_range(gui_brightness_slider, 0, 100);
+    lv_slider_set_value(gui_brightness_slider, 0, LV_ANIM_OFF);
+    lv_obj_set_style_bg_color(gui_brightness_slider, lv_color_hex(0x334155), LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(gui_brightness_slider, 10, LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(gui_brightness_slider, LV_OPA_0, LV_PART_KNOB);
 
-    lv_obj_t *brightness_label = lv_label_create(light_card);
-    lv_label_set_text(brightness_label, "Brightness: 75%");
-    lv_obj_set_style_text_font(brightness_label, &lv_font_montserrat_20, LV_STATE_DEFAULT);
-    lv_obj_set_style_text_color(brightness_label, lv_color_hex(0x94A3B8), LV_STATE_DEFAULT);
-    lv_obj_align(brightness_label, LV_ALIGN_BOTTOM_MID, 0, 0);
-    lv_obj_add_event_cb(brightness_slider, lv_brightness_slider_event, LV_EVENT_VALUE_CHANGED, brightness_label);
+    gui_brightness_label = lv_label_create(light_card);
+    lv_label_set_text(gui_brightness_label, "Brightness: 0%");
+    lv_obj_set_style_text_font(gui_brightness_label, &lv_font_montserrat_20, LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(gui_brightness_label, lv_color_hex(0x94A3B8), LV_STATE_DEFAULT);
+    lv_obj_align(gui_brightness_label, LV_ALIGN_CENTER, 0, 65);
+    lv_obj_add_event_cb(gui_brightness_slider, lv_brightness_slider_event, LV_EVENT_VALUE_CHANGED, gui_brightness_label);
 
     // ==================== 5. CHAT 卡片 ====================
     chat_card = lv_obj_create(page2_container);
@@ -888,27 +895,34 @@ static void lv_fan_speed_event(lv_event_t *e)
 {
     lv_obj_t *btn = lv_event_get_target(e);
 
-    // 取消其他两个按钮的选中状态
     if (btn == fan_low_btn)
     {
         lv_obj_clear_state(fan_mid_btn, LV_STATE_CHECKED);
         lv_obj_clear_state(fan_high_btn, LV_STATE_CHECKED);
-        ESP_LOGI(HANDLE_TAG, "风扇风速设为: 低档");
+        smart_home_ctrl_set_fan(FAN_SPEED_LOW);
+        if (gui_fan_switch && lv_obj_is_valid(gui_fan_switch) && !lv_obj_has_state(gui_fan_switch, LV_STATE_CHECKED)) {
+            lv_obj_add_state(gui_fan_switch, LV_STATE_CHECKED);
+        }
     }
     else if (btn == fan_mid_btn)
     {
         lv_obj_clear_state(fan_low_btn, LV_STATE_CHECKED);
         lv_obj_clear_state(fan_high_btn, LV_STATE_CHECKED);
-        ESP_LOGI(HANDLE_TAG, "风扇风速设为: 中档");
+        smart_home_ctrl_set_fan(FAN_SPEED_MID);
+        if (gui_fan_switch && lv_obj_is_valid(gui_fan_switch) && !lv_obj_has_state(gui_fan_switch, LV_STATE_CHECKED)) {
+            lv_obj_add_state(gui_fan_switch, LV_STATE_CHECKED);
+        }
     }
     else if (btn == fan_high_btn)
     {
         lv_obj_clear_state(fan_low_btn, LV_STATE_CHECKED);
         lv_obj_clear_state(fan_mid_btn, LV_STATE_CHECKED);
-        ESP_LOGI(HANDLE_TAG, "风扇风速设为: 高档");
+        smart_home_ctrl_set_fan(FAN_SPEED_HIGH);
+        if (gui_fan_switch && lv_obj_is_valid(gui_fan_switch) && !lv_obj_has_state(gui_fan_switch, LV_STATE_CHECKED)) {
+            lv_obj_add_state(gui_fan_switch, LV_STATE_CHECKED);
+        }
     }
 
-    // 确保当前按钮处于选中状态
     lv_obj_add_state(btn, LV_STATE_CHECKED);
 }
 
@@ -921,13 +935,24 @@ static void lv_fan_switch_event(lv_event_t *e)
     bool state = lv_obj_has_state(switch_obj, LV_STATE_CHECKED);
     if (state)
     {
-        ESP_LOGI(HANDLE_TAG, "风扇已开启");
-        // 这里可以添加实际的风扇控制逻辑
+        if (smart_home_ctrl_get_fan() == FAN_SPEED_OFF) {
+            smart_home_ctrl_set_fan(FAN_SPEED_LOW);
+            if (fan_low_btn && lv_obj_is_valid(fan_low_btn)) {
+                lv_obj_clear_state(fan_mid_btn, LV_STATE_CHECKED);
+                lv_obj_clear_state(fan_high_btn, LV_STATE_CHECKED);
+                lv_obj_add_state(fan_low_btn, LV_STATE_CHECKED);
+            }
+        }
     }
     else
     {
-        ESP_LOGI(HANDLE_TAG, "风扇已关闭");
-        // 这里可以添加实际的风扇控制逻辑
+        smart_home_ctrl_set_fan(FAN_SPEED_OFF);
+        if (fan_low_btn && lv_obj_is_valid(fan_low_btn))
+            lv_obj_clear_state(fan_low_btn, LV_STATE_CHECKED);
+        if (fan_mid_btn && lv_obj_is_valid(fan_mid_btn))
+            lv_obj_clear_state(fan_mid_btn, LV_STATE_CHECKED);
+        if (fan_high_btn && lv_obj_is_valid(fan_high_btn))
+            lv_obj_clear_state(fan_high_btn, LV_STATE_CHECKED);
     }
 }
 
@@ -940,13 +965,19 @@ static void lv_light_switch_event(lv_event_t *e)
     bool state = lv_obj_has_state(switch_obj, LV_STATE_CHECKED);
     if (state)
     {
-        ESP_LOGI(HANDLE_TAG, "灯光已开启");
-        // 这里可以添加实际的灯光控制逻辑
+        smart_home_ctrl_light_on();
+        if (gui_brightness_slider && lv_obj_is_valid(gui_brightness_slider))
+            lv_slider_set_value(gui_brightness_slider, 100, LV_ANIM_ON);
+        if (gui_brightness_label && lv_obj_is_valid(gui_brightness_label))
+            lv_label_set_text(gui_brightness_label, "Brightness: 100%");
     }
     else
     {
-        ESP_LOGI(HANDLE_TAG, "灯光已关闭");
-        // 这里可以添加实际的灯光控制逻辑
+        smart_home_ctrl_light_off();
+        if (gui_brightness_slider && lv_obj_is_valid(gui_brightness_slider))
+            lv_slider_set_value(gui_brightness_slider, 0, LV_ANIM_ON);
+        if (gui_brightness_label && lv_obj_is_valid(gui_brightness_label))
+            lv_label_set_text(gui_brightness_label, "Brightness: 0%");
     }
 }
 
@@ -964,6 +995,14 @@ static void lv_brightness_slider_event(lv_event_t *e)
         lv_snprintf(buf, sizeof(buf), "Brightness: %d%%", (int)val);
         lv_label_set_text(label, buf);
     }
+    smart_home_ctrl_set_light((int)val);
+    if (gui_light_switch && lv_obj_is_valid(gui_light_switch)) {
+        if (val > 0 && !lv_obj_has_state(gui_light_switch, LV_STATE_CHECKED)) {
+            lv_obj_add_state(gui_light_switch, LV_STATE_CHECKED);
+        } else if (val == 0 && lv_obj_has_state(gui_light_switch, LV_STATE_CHECKED)) {
+            lv_obj_clear_state(gui_light_switch, LV_STATE_CHECKED);
+        }
+    }
 }
 
 /**
@@ -973,14 +1012,7 @@ static void lv_auto_light_switch_event(lv_event_t *e)
 {
     lv_obj_t *switch_obj = lv_event_get_target(e);
     bool state = lv_obj_has_state(switch_obj, LV_STATE_CHECKED);
-    if (state)
-    {
-        ESP_LOGI(HANDLE_TAG, "自动灯光控制已启用");
-    }
-    else
-    {
-        ESP_LOGI(HANDLE_TAG, "自动灯光控制已禁用");
-    }
+    smart_home_ctrl_set_auto_mode(state);
 }
 
 /**
@@ -996,76 +1028,125 @@ static void lv_voice_command_callback(voice_cmd_t cmd, int param)
 
     switch (cmd)
     {
-    case VOICE_CMD_FAN_ON:
-        ESP_LOGI(HANDLE_TAG, "Voice: 风扇开");
-        if (fan_low_btn)
-            lv_obj_add_state(fan_low_btn, LV_STATE_CHECKED);
-        break;
-
-    case VOICE_CMD_FAN_OFF:
-        ESP_LOGI(HANDLE_TAG, "Voice: 风扇关");
-        if (fan_low_btn)
-            lv_obj_clear_state(fan_low_btn, LV_STATE_CHECKED);
-        if (fan_mid_btn)
-            lv_obj_clear_state(fan_mid_btn, LV_STATE_CHECKED);
-        if (fan_high_btn)
-            lv_obj_clear_state(fan_high_btn, LV_STATE_CHECKED);
-        break;
-
-    case VOICE_CMD_FAN_LOW:
-        ESP_LOGI(HANDLE_TAG, "Voice: 风扇低档");
-        if (fan_low_btn)
-            lv_obj_add_state(fan_low_btn, LV_STATE_CHECKED);
-        if (fan_mid_btn)
-            lv_obj_clear_state(fan_mid_btn, LV_STATE_CHECKED);
-        if (fan_high_btn)
-            lv_obj_clear_state(fan_high_btn, LV_STATE_CHECKED);
-        break;
-
-    case VOICE_CMD_FAN_MID:
-        ESP_LOGI(HANDLE_TAG, "Voice: 风扇中档");
-        if (fan_low_btn)
-            lv_obj_clear_state(fan_low_btn, LV_STATE_CHECKED);
-        if (fan_mid_btn)
-            lv_obj_add_state(fan_mid_btn, LV_STATE_CHECKED);
-        if (fan_high_btn)
-            lv_obj_clear_state(fan_high_btn, LV_STATE_CHECKED);
-        break;
-
-    case VOICE_CMD_FAN_HIGH:
-        ESP_LOGI(HANDLE_TAG, "Voice: 风扇高档");
-        if (fan_low_btn)
-            lv_obj_clear_state(fan_low_btn, LV_STATE_CHECKED);
-        if (fan_mid_btn)
-            lv_obj_clear_state(fan_mid_btn, LV_STATE_CHECKED);
-        if (fan_high_btn)
-            lv_obj_add_state(fan_high_btn, LV_STATE_CHECKED);
-        break;
-
     case VOICE_CMD_LIGHT_ON:
-        ESP_LOGI(HANDLE_TAG, "Voice: 灯光开");
-        lv_update_presence_status(true);
+        ESP_LOGI(HANDLE_TAG, "Voice: 打开电灯");
+        smart_home_ctrl_light_on();
+        if (gui_light_switch && lv_obj_is_valid(gui_light_switch))
+            lv_obj_add_state(gui_light_switch, LV_STATE_CHECKED);
+        if (gui_brightness_slider && lv_obj_is_valid(gui_brightness_slider))
+            lv_slider_set_value(gui_brightness_slider, 100, LV_ANIM_ON);
+        if (gui_brightness_label && lv_obj_is_valid(gui_brightness_label))
+            lv_label_set_text(gui_brightness_label, "Brightness: 100%");
         break;
 
     case VOICE_CMD_LIGHT_OFF:
-        ESP_LOGI(HANDLE_TAG, "Voice: 灯光关");
-        lv_update_presence_status(false);
+        ESP_LOGI(HANDLE_TAG, "Voice: 关闭电灯");
+        smart_home_ctrl_light_off();
+        if (gui_light_switch && lv_obj_is_valid(gui_light_switch))
+            lv_obj_clear_state(gui_light_switch, LV_STATE_CHECKED);
+        if (gui_brightness_slider && lv_obj_is_valid(gui_brightness_slider))
+            lv_slider_set_value(gui_brightness_slider, 0, LV_ANIM_ON);
+        if (gui_brightness_label && lv_obj_is_valid(gui_brightness_label))
+            lv_label_set_text(gui_brightness_label, "Brightness: 0%");
+        break;
+
+    case VOICE_CMD_FAN_ON:
+        ESP_LOGI(HANDLE_TAG, "Voice: 打开风扇");
+        smart_home_ctrl_fan_on();
+        if (gui_fan_switch && lv_obj_is_valid(gui_fan_switch))
+            lv_obj_add_state(gui_fan_switch, LV_STATE_CHECKED);
+        if (fan_low_btn && lv_obj_is_valid(fan_low_btn)) {
+            lv_obj_clear_state(fan_mid_btn, LV_STATE_CHECKED);
+            lv_obj_clear_state(fan_high_btn, LV_STATE_CHECKED);
+            lv_obj_add_state(fan_low_btn, LV_STATE_CHECKED);
+        }
+        break;
+
+    case VOICE_CMD_FAN_OFF:
+        ESP_LOGI(HANDLE_TAG, "Voice: 关闭风扇");
+        smart_home_ctrl_fan_off();
+        if (gui_fan_switch && lv_obj_is_valid(gui_fan_switch))
+            lv_obj_clear_state(gui_fan_switch, LV_STATE_CHECKED);
+        if (fan_low_btn && lv_obj_is_valid(fan_low_btn))
+            lv_obj_clear_state(fan_low_btn, LV_STATE_CHECKED);
+        if (fan_mid_btn && lv_obj_is_valid(fan_mid_btn))
+            lv_obj_clear_state(fan_mid_btn, LV_STATE_CHECKED);
+        if (fan_high_btn && lv_obj_is_valid(fan_high_btn))
+            lv_obj_clear_state(fan_high_btn, LV_STATE_CHECKED);
         break;
 
     case VOICE_CMD_BRIGHTNESS_UP:
-        ESP_LOGI(HANDLE_TAG, "Voice: 亮度+");
+        ESP_LOGI(HANDLE_TAG, "Voice: 亮一点");
+        smart_home_ctrl_light_brighter();
+        if (gui_brightness_slider && lv_obj_is_valid(gui_brightness_slider))
+            lv_slider_set_value(gui_brightness_slider, smart_home_ctrl_get_light(), LV_ANIM_ON);
+        {
+            int b = smart_home_ctrl_get_light();
+            if (gui_light_switch && lv_obj_is_valid(gui_light_switch))
+                (b > 0) ? lv_obj_add_state(gui_light_switch, LV_STATE_CHECKED)
+                        : lv_obj_clear_state(gui_light_switch, LV_STATE_CHECKED);
+        }
         break;
 
     case VOICE_CMD_BRIGHTNESS_DOWN:
-        ESP_LOGI(HANDLE_TAG, "Voice: 亮度-");
+        ESP_LOGI(HANDLE_TAG, "Voice: 暗一点");
+        smart_home_ctrl_light_dimmer();
+        if (gui_brightness_slider && lv_obj_is_valid(gui_brightness_slider))
+            lv_slider_set_value(gui_brightness_slider, smart_home_ctrl_get_light(), LV_ANIM_ON);
+        {
+            int b = smart_home_ctrl_get_light();
+            if (gui_light_switch && lv_obj_is_valid(gui_light_switch))
+                (b > 0) ? lv_obj_add_state(gui_light_switch, LV_STATE_CHECKED)
+                        : lv_obj_clear_state(gui_light_switch, LV_STATE_CHECKED);
+        }
         break;
 
-    case VOICE_CMD_AUTO_ON:
-        ESP_LOGI(HANDLE_TAG, "Voice: 自动模式开");
+    case VOICE_CMD_FAN_DOWN:
+        ESP_LOGI(HANDLE_TAG, "Voice: 调低一点");
+        smart_home_ctrl_fan_down();
+        {
+            int s = smart_home_ctrl_get_fan();
+            if (gui_fan_switch && lv_obj_is_valid(gui_fan_switch))
+                (s > 0) ? lv_obj_add_state(gui_fan_switch, LV_STATE_CHECKED)
+                        : lv_obj_clear_state(gui_fan_switch, LV_STATE_CHECKED);
+            if (s == FAN_SPEED_LOW) {
+                lv_obj_add_state(fan_low_btn, LV_STATE_CHECKED);
+                lv_obj_clear_state(fan_mid_btn, LV_STATE_CHECKED);
+                lv_obj_clear_state(fan_high_btn, LV_STATE_CHECKED);
+            } else if (s == FAN_SPEED_MID) {
+                lv_obj_add_state(fan_mid_btn, LV_STATE_CHECKED);
+                lv_obj_clear_state(fan_low_btn, LV_STATE_CHECKED);
+                lv_obj_clear_state(fan_high_btn, LV_STATE_CHECKED);
+            } else if (s == FAN_SPEED_HIGH) {
+                lv_obj_add_state(fan_high_btn, LV_STATE_CHECKED);
+                lv_obj_clear_state(fan_low_btn, LV_STATE_CHECKED);
+                lv_obj_clear_state(fan_mid_btn, LV_STATE_CHECKED);
+            }
+        }
         break;
 
-    case VOICE_CMD_AUTO_OFF:
-        ESP_LOGI(HANDLE_TAG, "Voice: 自动模式关");
+    case VOICE_CMD_FAN_UP:
+        ESP_LOGI(HANDLE_TAG, "Voice: 调高一点");
+        smart_home_ctrl_fan_up();
+        {
+            int s = smart_home_ctrl_get_fan();
+            if (gui_fan_switch && lv_obj_is_valid(gui_fan_switch))
+                (s > 0) ? lv_obj_add_state(gui_fan_switch, LV_STATE_CHECKED)
+                        : lv_obj_clear_state(gui_fan_switch, LV_STATE_CHECKED);
+            if (s == FAN_SPEED_LOW) {
+                lv_obj_add_state(fan_low_btn, LV_STATE_CHECKED);
+                lv_obj_clear_state(fan_mid_btn, LV_STATE_CHECKED);
+                lv_obj_clear_state(fan_high_btn, LV_STATE_CHECKED);
+            } else if (s == FAN_SPEED_MID) {
+                lv_obj_add_state(fan_mid_btn, LV_STATE_CHECKED);
+                lv_obj_clear_state(fan_low_btn, LV_STATE_CHECKED);
+                lv_obj_clear_state(fan_high_btn, LV_STATE_CHECKED);
+            } else if (s == FAN_SPEED_HIGH) {
+                lv_obj_add_state(fan_high_btn, LV_STATE_CHECKED);
+                lv_obj_clear_state(fan_low_btn, LV_STATE_CHECKED);
+                lv_obj_clear_state(fan_mid_btn, LV_STATE_CHECKED);
+            }
+        }
         break;
 
     case VOICE_CMD_CHAT:
@@ -1077,7 +1158,7 @@ static void lv_voice_command_callback(voice_cmd_t cmd, int param)
         break;
 
     case VOICE_CMD_WAKEUP_START:
-        ESP_LOGI(HANDLE_TAG, "Voice: 唤醒词检测到，chat卡片变蓝");
+        ESP_LOGI(HANDLE_TAG, "Voice: 唤醒词检测到");
         if (chat_card && lv_obj_is_valid(chat_card))
         {
             lv_obj_set_style_bg_opa(chat_card, LV_OPA_COVER, LV_STATE_DEFAULT);
@@ -1086,7 +1167,7 @@ static void lv_voice_command_callback(voice_cmd_t cmd, int param)
         break;
 
     case VOICE_CMD_WAKEUP_END:
-        ESP_LOGI(HANDLE_TAG, "Voice: 唤醒结束，恢复默认");
+        ESP_LOGI(HANDLE_TAG, "Voice: 唤醒结束");
         if (chat_card && lv_obj_is_valid(chat_card))
         {
             lv_obj_set_style_bg_color(chat_card, lv_color_hex(0x1E293B), LV_STATE_DEFAULT);
@@ -1094,6 +1175,7 @@ static void lv_voice_command_callback(voice_cmd_t cmd, int param)
         break;
 
     default:
+        ESP_LOGI(HANDLE_TAG, "Voice: 未知指令 cmd=%d", (int)cmd);
         break;
     }
 }
@@ -1139,6 +1221,39 @@ void lv_background_data_processing_timer(lv_timer_t *timer)
     uint8_t key;
 
     voice_control_process_queue();
+
+    if (gui_temp_label && lv_obj_is_valid(gui_temp_label)) {
+        char buf[16];
+        snprintf(buf, sizeof(buf), "%d C", (int)g_sh_state.temperature);
+        lv_label_set_text(gui_temp_label, buf);
+    }
+    if (gui_humi_label && lv_obj_is_valid(gui_humi_label)) {
+        char buf[16];
+        snprintf(buf, sizeof(buf), "%d %%", (int)g_sh_state.humidity);
+        lv_label_set_text(gui_humi_label, buf);
+    }
+
+    if (g_sh_state.light_on) {
+        if (gui_light_switch && lv_obj_is_valid(gui_light_switch) && !lv_obj_has_state(gui_light_switch, LV_STATE_CHECKED)) {
+            lv_obj_add_state(gui_light_switch, LV_STATE_CHECKED);
+        }
+    } else {
+        if (gui_light_switch && lv_obj_is_valid(gui_light_switch) && lv_obj_has_state(gui_light_switch, LV_STATE_CHECKED)) {
+            lv_obj_clear_state(gui_light_switch, LV_STATE_CHECKED);
+        }
+    }
+    if (gui_brightness_slider && lv_obj_is_valid(gui_brightness_slider)) {
+        if (lv_slider_get_value(gui_brightness_slider) != g_sh_state.light_brightness) {
+            lv_slider_set_value(gui_brightness_slider, g_sh_state.light_brightness, LV_ANIM_OFF);
+        }
+    }
+    if (gui_brightness_label && lv_obj_is_valid(gui_brightness_label)) {
+        static int last_label_brightness = -1;
+        if (last_label_brightness != g_sh_state.light_brightness) {
+            lv_label_set_text_fmt(gui_brightness_label, "Brightness: %d%%", g_sh_state.light_brightness);
+            last_label_brightness = g_sh_state.light_brightness;
+        }
+    }
 
     rtc_get_time(); // 获取当前时间
 

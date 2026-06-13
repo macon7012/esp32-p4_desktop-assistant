@@ -1,8 +1,0 @@
-Command: cmake -G Ninja -DPYTHON_DEPS_CHECKED=1 -DPYTHON=D:\rj\espidf\Espressif\python_env\idf5.5_py3.11_env\Scripts\python.exe -DESP_PLATFORM=1 -DSDKCONFIG='e:\esp\esp3\comprehensive_routine_70inch_mipilcd\sdkconfig' -DCCACHE_ENABLE=1 E:\esp\esp3\comprehensive_routine_70inch_mipilcd
-CMake Warning at D:/rj/espidf/Espressif/frameworks/esp-idf-v5.5.1/tools/cmake/component.cmake:298 (message):
-  No source files found for SRC_DIRS entry 'APP/include'.
-Call Stack (most recent call first):
-  D:/rj/espidf/Espressif/frameworks/esp-idf-v5.5.1/tools/cmake/component.cmake:455 (__component_add_sources)
-  main/CMakeLists.txt:1 (idf_component_register)
-
-

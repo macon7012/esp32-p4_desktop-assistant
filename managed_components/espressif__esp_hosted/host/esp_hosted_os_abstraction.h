@@ -24,6 +24,7 @@ typedef struct {
           /* Thread */
 /* 11 */   void*  (*_h_thread_create)(const char *tname, uint32_t tprio, uint32_t tstack_size, void (*start_routine)(void const *), void *sr_arg);
 /* 12 */   int    (*_h_thread_cancel)(void *thread_handle);
+           void   (*_h_thread_yield)(void);
 
           /* Sleeps */
 /* 13 */  unsigned int (*_h_msleep)(unsigned int mseconds);
@@ -44,14 +45,14 @@ typedef struct {
           /* Mutex */
 /* 23 */  int    (*_h_unlock_mutex)(void * mutex_handle);
 /* 24 */  void*  (*_h_create_mutex)(void);
-/* 25 */  int    (*_h_lock_mutex)(void * mutex_handle, int timeout);
+/* 25 */  int    (*_h_lock_mutex)(void * mutex_handle, int timeout_ms);
 /* 26 */  int    (*_h_destroy_mutex)(void * mutex_handle);
 
           /* Semaphore */
 /* 27 */  int    (*_h_post_semaphore)(void * semaphore_handle);
 /* 28 */  int    (*_h_post_semaphore_from_isr)(void * semaphore_handle);
 /* 29 */  void*  (*_h_create_semaphore)(int maxCount);
-/* 30 */  int    (*_h_get_semaphore)(void * semaphore_handle, int timeout);
+/* 30 */  int    (*_h_get_semaphore)(void * semaphore_handle, int timeout_ms);
 /* 31 */  int    (*_h_destroy_semaphore)(void * semaphore_handle);
 
           /* Timer */

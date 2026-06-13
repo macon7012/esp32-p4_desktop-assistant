@@ -170,12 +170,14 @@ $<TARGET_FILE:idf::lvgl__lvgl>
 $<TARGET_FILE:__idf_fatfs>
 $<TARGET_FILE:idf::espressif__es8311>
 $<TARGET_FILE:idf::espressif__esp_codec_dev>
+$<TARGET_FILE:idf::esp-idf-lib__dht>
 $<TARGET_FILE:idf::BSP>
 $<TARGET_FILE:__idf_esp_lcd>
 $<TARGET_FILE:__idf_lvgl__lvgl>
 $<TARGET_FILE:__idf_esp_driver_touch_sens>
 $<TARGET_FILE:__idf_espressif__es8311>
 $<TARGET_FILE:__idf_espressif__esp_codec_dev>
+$<TARGET_FILE:__idf_esp-idf-lib__dht>
 $<TARGET_FILE:idf::MYFATFS>
 $<TARGET_FILE:idf::PICTURE>
 $<TARGET_FILE:__idf_BSP>
@@ -193,6 +195,9 @@ $<TARGET_FILE:__idf_spiffs>
 $<TARGET_FILE:__idf_espressif__cjson>
 $<TARGET_FILE:__idf_espressif__dl_fft>
 $<TARGET_FILE:__idf_espressif__esp-dsp>
+$<TARGET_FILE:idf::espressif__esp-nn>
+$<TARGET_FILE:idf::espressif__esp-tflite-micro>
+$<TARGET_FILE:__idf_espressif__esp-nn>
 $<TARGET_FILE:idf::espressif__esp_sccb_intf>
 $<TARGET_FILE:idf::espressif__esp_cam_sensor>
 $<TARGET_FILE:__idf_espressif__esp_sccb_intf>
@@ -212,6 +217,7 @@ $<TARGET_FILE:idf::main>
 $<TARGET_FILE:__idf_PICTURE>
 $<TARGET_FILE:__idf_esp_driver_ppa>
 $<TARGET_FILE:__idf_espressif__esp-sr>
+$<TARGET_FILE:__idf_espressif__esp-tflite-micro>
 $<TARGET_FILE:__idf_espressif__esp_lcd_st7796>
 $<TARGET_FILE:__idf_espressif__esp_tinyusb>
 $<TARGET_FILE:__idf_espressif__esp_video>

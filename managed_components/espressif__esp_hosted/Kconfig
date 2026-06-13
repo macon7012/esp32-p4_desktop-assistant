@@ -2041,6 +2041,19 @@ ESP32XX_SPI_HD_CLK_FREQ_RANGE_MAX := 40
 		help
 			Mempool will help to alloc buffer without going to heap for every memory allocation or free
 
+	config ESP_HOSTED_MEMPOOL_PREFER_SPIRAM
+		bool "Prefer SPIRAM for transport buffer allocations"
+		default n
+		depends on SPIRAM
+		help
+			When enabled, transport buffer allocations first try DMA-capable
+			SPIRAM and fall back to internal DMA-capable RAM on failure. This
+			preserves scarce internal RAM on targets where GDMA can reach
+			PSRAM through cache (e.g. ESP32-P4, ESP32-S3), which is useful
+			for memory-intensive workloads like sustained 1080p video
+			streaming. Leave disabled on targets without DMA-capable PSRAM
+			or when transport latency must be minimised.
+
 	config ESP_HOSTED_MAX_SIMULTANEOUS_SYNC_RPC_REQUESTS
 		int "Maximum number of simultaneous synchronous RPC Request"
 		default 5

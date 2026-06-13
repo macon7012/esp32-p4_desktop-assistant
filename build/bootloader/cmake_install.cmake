@@ -39,7 +39,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/bootloader/esp-idf/cmake_install.cmake")
+  include("E:/esp/esp5/esp32-p4_desktop-assistant/build/bootloader/esp-idf/cmake_install.cmake")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)
@@ -57,6 +57,6 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-  file(WRITE "E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/bootloader/${CMAKE_INSTALL_MANIFEST}"
+  file(WRITE "E:/esp/esp5/esp32-p4_desktop-assistant/build/bootloader/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

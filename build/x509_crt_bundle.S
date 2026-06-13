@@ -1,4 +1,4 @@
-/* * Data converted from E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/esp-idf/mbedtls/x509_crt_bundle
+/* * Data converted from E:/esp/esp5/esp32-p4_desktop-assistant/build/esp-idf/mbedtls/x509_crt_bundle
  */
 .data
 #if !defined (__APPLE__) && !defined (__linux__)

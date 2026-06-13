@@ -33,7 +33,7 @@ DEFINE_LOG_TAG(sdio_wrapper);
 	} while (0);
 
 #define SDIO_LOCK(x) do { \
-	if (x) g_h.funcs->_h_lock_mutex(sdio_bus_lock, portMAX_DELAY); \
+	if (x) g_h.funcs->_h_lock_mutex(sdio_bus_lock, HOSTED_BLOCK_MAX); \
 } while (0);
 
 #define SDIO_UNLOCK(x) do { \

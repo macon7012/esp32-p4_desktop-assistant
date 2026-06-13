@@ -1,2 +1,2 @@
-source E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/gdbinit/symbols
-source E:/esp/esp3/comprehensive_routine_70inch_mipilcd/build/gdbinit/connect
+source E:/esp/esp5/esp32-p4_desktop-assistant/build/gdbinit/symbols
+source E:/esp/esp5/esp32-p4_desktop-assistant/build/gdbinit/connect

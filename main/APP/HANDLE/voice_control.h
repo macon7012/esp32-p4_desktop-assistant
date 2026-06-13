@@ -23,22 +23,19 @@
 /* 语音指令枚举 - 与智能家居控制功能对应 */
 typedef enum
 {
-    VOICE_CMD_NONE = 0,        /* 无指令 */
-    VOICE_CMD_FAN_ON,          /* 风扇: 开 */
-    VOICE_CMD_FAN_OFF,         /* 风扇: 关 */
-    VOICE_CMD_FAN_LOW,         /* 风扇: 低档 */
-    VOICE_CMD_FAN_MID,         /* 风扇: 中档 */
-    VOICE_CMD_FAN_HIGH,        /* 风扇: 高档 */
-    VOICE_CMD_LIGHT_ON,        /* 灯光: 开 */
-    VOICE_CMD_LIGHT_OFF,       /* 灯光: 关 */
-    VOICE_CMD_BRIGHTNESS_UP,   /* 亮度: 增加 */
-    VOICE_CMD_BRIGHTNESS_DOWN, /* 亮度: 减少 */
-    VOICE_CMD_AUTO_ON,         /* 自动模式: 开 */
-    VOICE_CMD_AUTO_OFF,        /* 自动模式: 关 */
-    VOICE_CMD_CHAT,            /* 对话交互 */
-    VOICE_CMD_WAKEUP_START,     /* 唤醒词检测到(UI通知) */
-    VOICE_CMD_WAKEUP_END,       /* 唤醒超时结束(UI通知) */
-    VOICE_CMD_MAX              /* 指令总数(用于数组大小) */
+    VOICE_CMD_NONE = 0,
+    VOICE_CMD_LIGHT_ON = 1,         /* 打开电灯 */
+    VOICE_CMD_LIGHT_OFF = 2,        /* 关闭电灯 */
+    VOICE_CMD_FAN_ON = 3,           /* 打开风扇 */
+    VOICE_CMD_FAN_OFF = 4,          /* 关闭风扇 */
+    VOICE_CMD_BRIGHTNESS_UP = 5,    /* 亮一点 */
+    VOICE_CMD_BRIGHTNESS_DOWN = 6,  /* 暗一点 */
+    VOICE_CMD_FAN_DOWN = 7,         /* 调低一点（风扇降档） */
+    VOICE_CMD_FAN_UP = 8,           /* 调高一点（风扇升档） */
+    VOICE_CMD_CHAT = 100,           /* 对话交互 */
+    VOICE_CMD_WAKEUP_START = 101,   /* 唤醒词检测到 */
+    VOICE_CMD_WAKEUP_END = 102,     /* 唤醒超时结束 */
+    VOICE_CMD_MAX
 } voice_cmd_t;
 
 /* 语音指令回调函数类型 - 当识别到语音指令时调用, 在LVGL任务上下文(Core 1)中执行 */

@@ -64,7 +64,7 @@ static const char TAG[] = "spi_hd_wrapper";
 	} while (0);
 
 #define SPI_HD_LOCK(x) do { \
-	if (x) g_h.funcs->_h_lock_mutex(spi_hd_bus_lock, portMAX_DELAY); \
+	if (x) g_h.funcs->_h_lock_mutex(spi_hd_bus_lock, HOSTED_BLOCK_MAX); \
 } while (0);
 
 #define SPI_HD_UNLOCK(x) do { \
